@@ -4,115 +4,44 @@ CoreInventory is a high-performance, production-ready **Inventory Management Sys
 
 ---
 
-## 🌟 Key Features
+## 🚪 Onboarding Flow (Getting Started)
 
-### 🏢 Operations Control
-- **Incoming (Receipts)**: Track vendor shipments, perform quality checks, and automate stock intake.
-- **Outgoing (Deliveries)**: Manage order fulfillment with Pick-Pack-Ship workflows.
-- **Internal Transfers**: seamless relocation of stock between warehouses or internal bins.
-- **Adjustments**: Intelligent inventory reconciliation with automated ledger adjustments.
-
-### 🛡️ Secure Authorization (RBAC)
-- **Role-Based Access**: Multi-tier security (Admin, Manager, Staff).
-- **Protected Actions**: Supervisory roles required for stock validation and profile management.
-- **JWT Auth**: Industry-standard token-based security with automatic silent refreshes.
-
-### 📊 Real-time Intelligence
-- **Dynamic Dashboard**: Live KPIs for total stock, low-stock warnings, and inventory valuation ($).
-- **Movement Velocity**: Visualize inflow vs. outflow trends with interactive charts.
-- **Audit Ledger**: Comprehensive historical stream of every inventory move for full accountability.
-
-### 📦 Catalog & Logistics
-- **Smart Catalog**: Manage SKUs, barcodes, categories, and custom reordering rules.
-- **Logistics Mapping**: Hierarchical warehouse structure (Warehouses -> Locations -> Bins).
+1.  **Login**: Use the `admin@coreinventory.com` account to access full features.
+2.  **Organization Setup**: Go to **Global Settings** to configure your **Warehouses** and **Locations**. This is the first step before adding stock.
+3.  **Cataloging**: Navigate to **Products** to build your item repository.
+4.  **Operations**: Start your first **Incoming Receipt** to bring stock into your warehouse.
 
 ---
 
-## 🛠️ Technology Stack
+## 🔒 Role-Based Access Matrix (Permissions)
 
-### Frontend
-- **Framework**: [React 19](https://reactjs.org/) + [Vite](https://vitejs.dev/)
-- **State & Data**: [Redux Toolkit](https://redux-toolkit.js.org/) & [TanStack Query v5](https://tanstack.com/query/latest)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) & [Shadcn UI](https://ui.shadcn.com/)
-- **Icons & Motion**: [Lucide React](https://lucide.dev/) & [Framer Motion](https://www.framer.com/motion/)
+The system is built on a strict **Authority Hierarchy**. Here is exactly who can access and edit what:
 
-### Backend
-- **Engine**: [Node.js](https://nodejs.org/) with [Express](https://expressjs.com/)
-- **Language**: JavaScript (ES6+)
-- **Security**: JWT (JSON Web Tokens) & OTP verification
-- **Logging**: [Winston](https://github.com/winstonjs/winston) industrial logger
+### 👑 Admin & Supervisor (Admin/Manager Roles)
+*   **User Base**: FULL access to view and manage system users and their roles.
+*   **Warehouse Settings**: ONLY Admins/Managers can create, edit, or configure **Warehouses**, **Locations**, and **Aisles**.
+*   **Inventory Validation**: Exclusive authority to "Validate" or "Cancel" Movements. Staff can record data, but only supervisors can finalize the stock update.
+*   **Catalog Management**: Can create, edit, or archive Products and Categories.
+*   **Audit**: Access to global movement history and valuation reports.
 
-### Database
-- **Provider**: [PostgreSQL](https://www.postgresql.org/)
-- **Logic**: Stored Procedures & DB-level Triggers (ensuring data integrity even outside the API).
-- **Driver**: `pg` (node-postgres)
+### 👤 Operations Staff (Staff Role)
+*   **Operational Workflow**: Can create "Drafts" for Receipts and Deliveries, and mark items as "Ready".
+*   **Stock Moves**: CANNOT validate or finalize stock movements. Requires a supervisor for the final step.
+*   **System Controls**: The "User Base" and "Global Settings" (Warehouse config) menus are **hidden** from the staff UI.
+*   **Visibility**: Can view stock levels and transaction history but cannot edit or delete records.
 
 ---
 
-## 🚀 Installation & Setup
-
-### 1. Prerequisites
-- **Node.js**: v18.0.0 or higher
-- **PostgreSQL**: v14.0 or higher
-- **npm**: v9.0.0 or higher
-
-### 2. Database Preparation
-Create a new PostgreSQL database and enable the required extensions:
-```sql
-CREATE DATABASE core_inventory;
--- Connect to core_inventory and run:
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-```
-
-### 3. Backend Implementation
-```bash
-cd Backend
-npm install
-cp env.example .env
-# Open .env and configure your DB_USER, DB_PASSWORD, and DB_NAME
-npm run migrate   # Create schema (tables, functions, triggers)
-npm run seed      # Populate with initial categories, warehouses, and Admin account
-npm run dev       # Start API on http://localhost:5000
-```
-
-### 4. Frontend Implementation
-```bash
-cd Frontend
-npm install
-npm run dev       # Start App on http://localhost:5173
-```
+## 🏗️ Project Architecture
+- **Frontend**: React 19 + Vite + Tailwind 4 (High-speed, Responsive UI)
+- **Backend**: Node.js + Express (Robust API Layer)
+- **Database**: PostgreSQL (Relational Integrity with Atomic Triggers)
 
 ---
 
-## 🔑 Default Access Details
-
-The system comes pre-seeded with a master Admin account for initial configuration:
-
-- **Admin User**: `admin@coreinventory.com`
-- **Password**: `admin123`
-- **Staff User**: `staff@coreinventory.com` (Restricted access)
-- **Password**: `staff123`
-
----
-
-## 📁 Project Structure
-
-```text
-├── Backend
-│   ├── src
-│   │   ├── controllers    # Request handling logic
-│   │   ├── middleware     # Auth, Role Checks, Validation
-│   │   ├── routes         # API Endpoint definitions
-│   │   ├── migrations     # Schema & Seed scripts
-│   │   └── utils          # Database & Helper functions
-│   └── logs               # System error & access logs
-└── Frontend
-    ├── src
-    │   ├── components     # Reusable UI (Shadcn + Custom)
-    │   ├── pages          # View components
-    │   ├── services       # API Integrations (Axios)
-    │   └── store          # Global State Management (Redux)
-```
+## 🚀 Setup Instructions
+1.  **Backend**: `cd Backend && npm install && npm run migrate && npm run seed && npm run dev`
+2.  **Frontend**: `cd Frontend && npm install && npm run dev`
 
 ---
 

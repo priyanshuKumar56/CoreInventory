@@ -24,6 +24,7 @@ import StockOverview from '@/pages/StockOverview';
 import MoveHistory from '@/pages/MoveHistory';
 import Settings from '@/pages/Settings';
 import Profile from '@/pages/Profile';
+import Users from '@/pages/Users';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useSelector((state) => state.auth);
@@ -73,6 +74,7 @@ function App() {
         <Route path="stock" element={<StockOverview />} />
         <Route path="moves" element={<MoveHistory />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="users" element={<Users />} />
         <Route path="profile" element={<Profile />} />
       </Route>
 
