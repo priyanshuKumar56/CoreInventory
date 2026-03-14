@@ -333,11 +333,11 @@ exports.getProductById = async (req, res, next) => {
 
 exports.createProduct = async (req, res, next) => {
   try {
-    const { name, sku, description, category_id, unit_of_measure, reorder_point, initial_stock, cost_price, sale_price, barcode } = req.body;
+    const { name, sku, description, category_id, unit_of_measure, reorder_point, initial_stock, cost_price, sale_price, barcode, type } = req.body;
     const result = await query(`
-      INSERT INTO products (name, sku, description, category_id, unit_of_measure, reorder_point, initial_stock, cost_price, sale_price, barcode, created_by)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *
-    `, [name, sku, description, category_id, unit_of_measure || 'pcs', reorder_point || 0, initial_stock || 0, cost_price || 0, sale_price || 0, barcode, req.user.id]);
+      INSERT INTO products (name, sku, description, category_id, unit_of_measure, reorder_point, initial_stock, cost_price, sale_price, barcode, type, created_by)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *
+    `, [name, sku, description, category_id, unit_of_measure || 'pcs', reorder_point || 0, initial_stock || 0, cost_price || 0, sale_price || 0, barcode, type || 'storable', req.user.id]);
     res.status(201).json({ success: true, data: result.rows[0] });
   } catch (err) { next(err); }
 };
@@ -345,16 +345,16 @@ exports.createProduct = async (req, res, next) => {
 exports.updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, description, category_id, unit_of_measure, reorder_point, cost_price, sale_price, barcode, is_active } = req.body;
+    const { name, description, category_id, unit_of_measure, reorder_point, cost_price, sale_price, barcode, type, is_active } = req.body;
     const result = await query(`
       UPDATE products SET
         name = COALESCE($1, name), description = COALESCE($2, description),
         category_id = COALESCE($3, category_id), unit_of_measure = COALESCE($4, unit_of_measure),
         reorder_point = COALESCE($5, reorder_point), cost_price = COALESCE($6, cost_price),
         sale_price = COALESCE($7, sale_price), barcode = COALESCE($8, barcode),
-        is_active = COALESCE($9, is_active)
-      WHERE id = $10 RETURNING *
-    `, [name, description, category_id, unit_of_measure, reorder_point, cost_price, sale_price, barcode, is_active, id]);
+        type = COALESCE($9, type), is_active = COALESCE($10, is_active)
+      WHERE id = $11 RETURNING *
+    `, [name, description, category_id, unit_of_measure, reorder_point, cost_price, sale_price, barcode, type, is_active, id]);
     if (!result.rows.length) return res.status(404).json({ success: false, message: 'Product not found' });
     res.json({ success: true, data: result.rows[0] });
   } catch (err) { next(err); }

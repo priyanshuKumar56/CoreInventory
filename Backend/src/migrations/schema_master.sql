@@ -118,6 +118,7 @@ CREATE TABLE IF NOT EXISTS products (
   cost_price       NUMERIC(12,2) DEFAULT 0,
   sale_price       NUMERIC(12,2) DEFAULT 0,
   barcode          VARCHAR(100),
+  type             VARCHAR(20) NOT NULL DEFAULT 'storable', -- storable | consumable
   is_active        BOOLEAN DEFAULT true,
   created_by       UUID REFERENCES users(id),
   created_at       TIMESTAMPTZ DEFAULT NOW(),

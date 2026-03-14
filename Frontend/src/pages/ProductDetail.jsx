@@ -71,7 +71,7 @@ export default function ProductDetail() {
             <CardTitle className="text-sm font-medium">Sales Price</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-mono">₹{product.price}</div>
+            <div className="text-2xl font-bold font-mono">₹{product.sale_price}</div>
           </CardContent>
         </Card>
         <Card>
@@ -79,7 +79,7 @@ export default function ProductDetail() {
             <CardTitle className="text-sm font-medium">Cost</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-mono">₹{product.cost}</div>
+            <div className="text-2xl font-bold font-mono">₹{product.cost_price}</div>
           </CardContent>
         </Card>
         
@@ -103,7 +103,7 @@ export default function ProductDetail() {
                 <CardTitle className="text-sm font-medium">Stock Value</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold font-mono text-green-600">₹{(totalStock * product.cost).toLocaleString()}</div>
+                <div className="text-2xl font-bold font-mono text-green-600">₹{(totalStock * product.cost_price).toLocaleString()}</div>
               </CardContent>
             </Card>
           </>
@@ -121,7 +121,7 @@ export default function ProductDetail() {
             <CardContent className="grid gap-4 md:grid-cols-2">
               <div className="grid grid-cols-3 gap-2 border-b pb-2">
                 <span className="text-muted-foreground font-medium text-sm col-span-1">Product Type</span>
-                <span className="col-span-2 capitalize font-medium">{product.type}</span>
+                <span className="col-span-2 capitalize font-medium">{product.type || 'storable'}</span>
               </div>
               <div className="grid grid-cols-3 gap-2 border-b pb-2 md:border-b-0">
                 <span className="text-muted-foreground font-medium text-sm col-span-1">Unit of Measure</span>
@@ -133,7 +133,7 @@ export default function ProductDetail() {
               </div>
               <div className="grid grid-cols-3 gap-2 pb-2">
                 <span className="text-muted-foreground font-medium text-sm col-span-1">Internal Notes</span>
-                <span className="col-span-2 text-sm">{product.notes || '—'}</span>
+                <span className="col-span-2 text-sm">{product.description || '—'}</span>
               </div>
             </CardContent>
           </Card>

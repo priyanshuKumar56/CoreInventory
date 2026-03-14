@@ -51,7 +51,14 @@ export default function Signup() {
   return (
     <div className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
       <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
-        <div className="absolute inset-0 bg-primary" />
+        <div className="absolute inset-0">
+          <img 
+            src="https://images.unsplash.com/photo-1566438480900-0609be27a4be?w=1920&h=1080&fit=crop&crop=entropy&auto=format" 
+            alt="Modern warehouse with inventory" 
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/90 to-purple-600/80" />
+        </div>
         <div className="relative z-20 flex items-center text-lg font-medium">
           <PackageSearch className="mr-2 h-6 w-6" />
           CoreInventory
@@ -67,52 +74,59 @@ export default function Signup() {
       <div className="p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
+            <div className="mx-auto mb-4 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 p-3">
+              <PackageSearch className="h-8 w-8 text-white" />
+            </div>
             <h1 className="text-2xl font-semibold tracking-tight">Create an account</h1>
             <p className="text-sm text-muted-foreground">Enter your details below to get started</p>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name" placeholder="John Doe"
-                  value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className={errors.name ? 'border-destructive' : ''}
-                />
-                {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
-              </div>
+          <Card className="backdrop-blur-sm bg-white/95 shadow-xl">
+            <CardContent className="pt-6">
+              <form onSubmit={handleSubmit}>
+                <div className="grid gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name" placeholder="John Doe"
+                      value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      className={errors.name ? 'border-destructive' : ''}
+                    />
+                    {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+                  </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email" type="email" placeholder="name@company.com"
-                  value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className={errors.email ? 'border-destructive' : ''}
-                />
-                {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-              </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input
+                      id="email" type="email" placeholder="name@company.com"
+                      value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      className={errors.email ? 'border-destructive' : ''}
+                    />
+                    {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                  </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password" type="password" placeholder="••••••••"
-                  value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className={errors.password ? 'border-destructive' : ''}
-                />
-                <div className="flex gap-1 mt-1">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className={`h-1 flex-1 rounded-full ${form.password ? (i <= (form.password.length > 8 ? 4 : form.password.length / 2) ? 'bg-primary' : 'bg-muted') : 'bg-muted'}`} />
-                  ))}
+                  <div className="grid gap-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password" type="password" placeholder="••••••••"
+                      value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
+                      className={errors.password ? 'border-destructive' : ''}
+                    />
+                    <div className="flex gap-1 mt-1">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className={`h-1 flex-1 rounded-full ${form.password ? (i <= (form.password.length > 8 ? 4 : form.password.length / 2) ? 'bg-primary' : 'bg-muted') : 'bg-muted'}`} />
+                      ))}
+                    </div>
+                    {errors.password ? <p className="text-sm text-destructive">{errors.password}</p> : <p className="text-xs text-muted-foreground">Must be at least 8 characters with upper, lower, and special chars.</p>}
+                  </div>
+
+                  <Button type="submit" disabled={loading} className="w-full mt-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700">
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Create Account
+                  </Button>
                 </div>
-                {errors.password ? <p className="text-sm text-destructive">{errors.password}</p> : <p className="text-xs text-muted-foreground">Must be at least 8 characters with upper, lower, and special chars.</p>}
-              </div>
-
-              <Button type="submit" disabled={loading} className="w-full mt-2">
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Create Account
-              </Button>
-            </div>
-          </form>
+              </form>
+            </CardContent>
+          </Card>
 
           <p className="px-8 text-center text-sm text-muted-foreground">
             Already have an account? <Link to="/login" className="underline underline-offset-4 hover:text-primary">Sign in</Link>

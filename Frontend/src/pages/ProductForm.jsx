@@ -19,7 +19,7 @@ export default function ProductForm() {
 
   const [form, setForm] = useState({
     name: '', sku: '', type: 'storable', category_id: '',
-    price: 0, cost: 0, reorder_point: 0, barcode: '', notes: '', unit_of_measure: 'Units'
+    sale_price: 0, cost_price: 0, reorder_point: 0, barcode: '', description: '', unit_of_measure: 'Units'
   });
 
   const [showCatModal, setShowCatModal] = useState(false);
@@ -36,9 +36,9 @@ export default function ProductForm() {
         const p = data.data;
         setForm({
           name: p.name, sku: p.sku || '', type: p.type || 'storable',
-          category_id: p.category_id || '', price: p.price || 0, cost: p.cost || 0,
+          category_id: p.category_id || '', sale_price: p.sale_price || 0, cost_price: p.cost_price || 0,
           reorder_point: p.reorder_point || 0, barcode: p.barcode || '',
-          notes: p.notes || '', unit_of_measure: p.unit_of_measure || 'Units'
+          description: p.description || '', unit_of_measure: p.unit_of_measure || 'Units'
         });
       });
     }
@@ -69,7 +69,7 @@ export default function ProductForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.name || !form.type) return toast.error('Name and Type are required');
-    if (form.price < 0 || form.cost < 0) return toast.error('Price and Cost cannot be negative');
+    if (form.sale_price < 0 || form.cost_price < 0) return toast.error('Price and Cost cannot be negative');
     mutation.mutate(form);
   };
 
@@ -132,11 +132,11 @@ export default function ProductForm() {
             <CardContent className="grid gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="price">Sales Price (₹)</Label>
-                <Input id="price" type="number" min="0" step="0.01" value={form.price} onChange={e => setForm({ ...form, price: parseFloat(e.target.value) || 0 })} />
+                <Input id="price" type="number" min="0" step="0.01" value={form.sale_price} onChange={e => setForm({ ...form, sale_price: parseFloat(e.target.value) || 0 })} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="cost">Cost (₹)</Label>
-                <Input id="cost" type="number" min="0" step="0.01" value={form.cost} onChange={e => setForm({ ...form, cost: parseFloat(e.target.value) || 0 })} />
+                <Input id="cost" type="number" min="0" step="0.01" value={form.cost_price} onChange={e => setForm({ ...form, cost_price: parseFloat(e.target.value) || 0 })} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="uom">Unit of Measure</Label>
@@ -174,7 +174,7 @@ export default function ProductForm() {
           <Card className="md:col-span-2">
             <CardHeader><CardTitle>Internal Notes</CardTitle></CardHeader>
             <CardContent>
-              <Textarea id="notes" placeholder="Any internal descriptions, instructions, or supplier preferred terms..." className="min-h-[100px]" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
+              <Textarea id="notes" placeholder="Any internal descriptions, instructions, or supplier preferred terms..." className="min-h-[100px]" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
             </CardContent>
           </Card>
         </div>
