@@ -9,6 +9,16 @@ const invCtrl = require('../controllers/inventoryController');
 
 const router = express.Router();
 
+// ── ROOT ─────────────────────────────────────────────────────────
+router.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'CoreInventory API is live',
+    version: '1.0.0',
+    documentation: '/docs (pending)'
+  });
+});
+
 // ── Validation helpers ────────────────────────────────────────────
 const validate = (validations) => {
   return async (req, res, next) => {
@@ -57,9 +67,17 @@ router.post('/receipts', authenticate, validate([
   body('items').optional().isArray(),
 ]), receiptCtrl.createReceipt);
 router.put('/receipts/:id', authenticate, receiptCtrl.updateReceipt);
-router.post('/receipts/:id/action', authenticate, validate([
+
+// Only admin/manager can validate or delete receipts
+router.post('/receipts/:id/action', authenticate, (req, res, next) => {
+  if (req.body.action === 'validate' || req.body.action === 'cancel') {
+    return authorize('admin', 'manager')(req, res, next);
+  }
+  next();
+}, validate([
   body('action').isIn(['confirm', 'validate', 'cancel']),
 ]), receiptCtrl.receiptAction);
+
 router.delete('/receipts/:id', authenticate, authorize('admin', 'manager'), receiptCtrl.deleteReceipt);
 
 // ── DELIVERIES ────────────────────────────────────────────────────
@@ -67,7 +85,14 @@ router.get('/deliveries', authenticate, deliveryCtrl.getDeliveries);
 router.get('/deliveries/:id', authenticate, deliveryCtrl.getDeliveryById);
 router.post('/deliveries', authenticate, deliveryCtrl.createDelivery);
 router.put('/deliveries/:id', authenticate, deliveryCtrl.updateDelivery);
-router.post('/deliveries/:id/action', authenticate, validate([
+
+// Only admin/manager can validate deliveries
+router.post('/deliveries/:id/action', authenticate, (req, res, next) => {
+  if (req.body.action === 'validate' || req.body.action === 'cancel') {
+    return authorize('admin', 'manager')(req, res, next);
+  }
+  next();
+}, validate([
   body('action').isIn(['confirm', 'validate', 'cancel']),
 ]), deliveryCtrl.deliveryAction);
 
@@ -75,12 +100,19 @@ router.post('/deliveries/:id/action', authenticate, validate([
 router.get('/transfers', authenticate, invCtrl.getTransfers);
 router.get('/transfers/:id', authenticate, invCtrl.getTransferById);
 router.post('/transfers', authenticate, invCtrl.createTransfer);
-router.post('/transfers/:id/action', authenticate, invCtrl.transferAction);
+
+// Only admin/manager can validate transfers
+router.post('/transfers/:id/action', authenticate, (req, res, next) => {
+  if (req.body.action === 'validate') {
+    return authorize('admin', 'manager')(req, res, next);
+  }
+  next();
+}, invCtrl.transferAction);
 
 // ── ADJUSTMENTS ───────────────────────────────────────────────────
 router.get('/adjustments', authenticate, invCtrl.getAdjustments);
 router.post('/adjustments', authenticate, invCtrl.createAdjustment);
-router.post('/adjustments/:id/validate', authenticate, invCtrl.validateAdjustment);
+router.post('/adjustments/:id/validate', authenticate, authorize('admin', 'manager'), invCtrl.validateAdjustment);
 
 // ── STOCK & MOVES ─────────────────────────────────────────────────
 router.get('/stock', authenticate, invCtrl.getStockOverview);
@@ -89,13 +121,13 @@ router.get('/moves', authenticate, invCtrl.getMoveHistory);
 // ── PRODUCTS ──────────────────────────────────────────────────────
 router.get('/products', authenticate, invCtrl.getProducts);
 router.get('/products/:id', authenticate, invCtrl.getProductById);
-router.post('/products', authenticate, validate([
+router.post('/products', authenticate, authorize('admin', 'manager'), validate([
   body('name').trim().notEmpty(),
   body('sku').trim().notEmpty(),
 ]), invCtrl.createProduct);
-router.put('/products/:id', authenticate, invCtrl.updateProduct);
+router.put('/products/:id', authenticate, authorize('admin', 'manager'), invCtrl.updateProduct);
 router.get('/categories', authenticate, invCtrl.getCategories);
-router.post('/categories', authenticate, invCtrl.createCategory);
+router.post('/categories', authenticate, authorize('admin', 'manager'), invCtrl.createCategory);
 
 // ── WAREHOUSES & LOCATIONS ────────────────────────────────────────
 router.get('/warehouses', authenticate, invCtrl.getWarehouses);
@@ -108,7 +140,7 @@ router.post('/locations', authenticate, authorize('admin', 'manager'), invCtrl.c
 
 // ── CONTACTS ──────────────────────────────────────────────────────
 router.get('/contacts', authenticate, invCtrl.getContacts);
-router.post('/contacts', authenticate, validate([body('name').trim().notEmpty()]), invCtrl.createContact);
+router.post('/contacts', authenticate, authorize('admin', 'manager'), validate([body('name').trim().notEmpty()]), invCtrl.createContact);
 
 // ── USERS ─────────────────────────────────────────────────────────
 router.get('/users', authenticate, authorize('admin', 'manager'), invCtrl.getUsers);
