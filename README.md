@@ -4,44 +4,64 @@ CoreInventory is a high-performance, production-ready **Inventory Management Sys
 
 ---
 
-## 🚪 Onboarding Flow (Getting Started)
+## 🚪 Quick Start (Docker - Recommended)
 
-1.  **Login**: Use the `admin@coreinventory.com` account to access full features.
-2.  **Organization Setup**: Go to **Global Settings** to configure your **Warehouses** and **Locations**. This is the first step before adding stock.
-3.  **Cataloging**: Navigate to **Products** to build your item repository.
-4.  **Operations**: Start your first **Incoming Receipt** to bring stock into your warehouse.
+The easiest way to get the entire stack running is using Docker. This ensures all dependencies (PostgreSQL, Node, Nginx) are configured automatically.
+
+1.  **Clone the repository.**
+2.  **Run Docker Compose**:
+    ```bash
+    docker-compose up --build
+    ```
+3.  **Access the App**:
+    - **Frontend**: `http://localhost:5173`
+    - **Backend API**: `http://localhost:5000`
+
+*Note: The first run will automatically handle database migrations and seeding. Default admin: `admin@coreinventory.com` | `admin123`.*
+
+---
+
+## 🛠️ Manual Installation Guide
+
+If you prefer to run the components separately on your machine:
+
+### 1. Prerequisites
+- **Node.js**: v18.0.0+ | **PostgreSQL**: v14.0+
+
+### 2. Backend Setup
+```bash
+cd Backend
+npm install
+cp env.example .env  # Update variables in .env
+npm run migrate      # Create tables/triggers
+npm run seed         # Initial data
+npm run dev          # Start server (Port 5000)
+```
+
+### 3. Frontend Setup
+```bash
+cd Frontend
+npm install
+npm run dev          # Start UI (Port 5173/5174)
+```
 
 ---
 
 ## 🔒 Role-Based Access Matrix (Permissions)
 
-The system is built on a strict **Authority Hierarchy**. Here is exactly who can access and edit what:
-
-### 👑 Admin & Supervisor (Admin/Manager Roles)
-*   **User Base**: FULL access to view and manage system users and their roles.
-*   **Warehouse Settings**: ONLY Admins/Managers can create, edit, or configure **Warehouses**, **Locations**, and **Aisles**.
-*   **Inventory Validation**: Exclusive authority to "Validate" or "Cancel" Movements. Staff can record data, but only supervisors can finalize the stock update.
-*   **Catalog Management**: Can create, edit, or archive Products and Categories.
-*   **Audit**: Access to global movement history and valuation reports.
-
-### 👤 Operations Staff (Staff Role)
-*   **Operational Workflow**: Can create "Drafts" for Receipts and Deliveries, and mark items as "Ready".
-*   **Stock Moves**: CANNOT validate or finalize stock movements. Requires a supervisor for the final step.
-*   **System Controls**: The "User Base" and "Global Settings" (Warehouse config) menus are **hidden** from the staff UI.
-*   **Visibility**: Can view stock levels and transaction history but cannot edit or delete records.
+| Feature | Admin / Manager | Staff |
+| :--- | :--- | :--- |
+| **Warehouse Settings** | ✅ Create/Edit | ❌ Hidden |
+| **User Management** | ✅ View/Audit | ❌ Hidden |
+| **Inventory Validation**| ✅ Finalize Moves | ⚠️ Draft Only |
+| **Catalog / Products** | ✅ Manage | ❌ View Only |
 
 ---
 
 ## 🏗️ Project Architecture
-- **Frontend**: React 19 + Vite + Tailwind 4 (High-speed, Responsive UI)
-- **Backend**: Node.js + Express (Robust API Layer)
-- **Database**: PostgreSQL (Relational Integrity with Atomic Triggers)
-
----
-
-## 🚀 Setup Instructions
-1.  **Backend**: `cd Backend && npm install && npm run migrate && npm run seed && npm run dev`
-2.  **Frontend**: `cd Frontend && npm install && npm run dev`
+- **Frontend**: React 19 + Vite + Tailwind 4 (Served via Nginx in Docker)
+- **Backend**: Node.js + Express (Protected by JWT & Role middleware)
+- **Database**: PostgreSQL (Atomic integrity via DB triggers)
 
 ---
 

@@ -1,5 +1,8 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+// Only load .env if it exists (for local development)
+if (require('fs').existsSync(path.join(__dirname, '../../.env'))) {
+    require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+}
 const { query, withTransaction } = require('../config/db');
 const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger');

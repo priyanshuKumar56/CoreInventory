@@ -1,0 +1,69 @@
+services:
+  db:
+    image: postgres:14-alpine
+    container_name: core_inventory_db
+    restart: always
+    environment:
+      POSTGRES_DB: coreinventory
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d coreinventory"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - core_inventory_network
+
+  backend:
+    build: 
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: core_inventory_api
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=coreinventory
+      - DB_USER=postgres
+      - DB_PASSWORD=password123
+      - JWT_SECRET=core_inventory_secret_key_2026
+      - CLIENT_URL=http://localhost:5173
+      - JWT_EXPIRES_IN=7d
+      - JWT_REFRESH_SECRET=core_inventory_refresh_secret_2026
+      - JWT_REFRESH_EXPIRES_IN=30d
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - core_inventory_network
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:5173/api
+    container_name: core_inventory_ui
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - core_inventory_network
+
+volumes:
+  postgres_data:
+
+networks:
+  core_inventory_network:
+    driver: bridge

@@ -1,5 +1,8 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+// Only load .env if it exists (for local development)
+if (require('fs').existsSync(path.join(__dirname, '../../.env'))) {
+    require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+}
 const fs = require('fs');
 const { pool, testConnection } = require('../config/db');
 
@@ -8,7 +11,7 @@ const runMigrations = async () => {
     
     const isConnected = await testConnection();
     if (!isConnected) {
-        console.error('Error: Could not connect to database. Check .env');
+        console.error('Error: Could not connect to database. Check environment variables.');
         process.exit(1);
     }
 
