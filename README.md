@@ -1,5 +1,8 @@
 CoreInventory is a high-performance, production-ready **Inventory Management System (IMS)**. Engineered for modern businesses, it provides a centralized platform to manage stock lifecycle—from procurement and internal relocation to fulfillment and auditing.
 
+## 🎥 Project Demo
+
+Watch the demo here:  👉 [Demo Video](https://drive.google.com/file/d/165bn8VEbFOkvD_UahOE3E3z8mjHIWnYe/view?usp=sharing)
 ---
 
 ## 🚪 Quick Start
