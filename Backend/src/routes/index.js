@@ -6,6 +6,7 @@ const dashCtrl = require('../controllers/dashboardController');
 const receiptCtrl = require('../controllers/receiptController');
 const deliveryCtrl = require('../controllers/deliveryController');
 const invCtrl = require('../controllers/inventoryController');
+const adminCtrl = require('../controllers/adminController');
 
 const router = express.Router();
 
@@ -148,5 +149,8 @@ router.post('/contacts', authenticate, authorize('admin', 'manager'), validate([
 // ── USERS ─────────────────────────────────────────────────────────
 router.get('/users', authenticate, authorize('admin', 'manager'), invCtrl.getUsers);
 router.put('/profile', authenticate, invCtrl.updateProfile);
+
+// ── ADMIN & LOGS ──────────────────────────────────────────────────
+router.get('/admin/logs', authenticate, authorize('admin'), adminCtrl.getLogs);
 
 module.exports = router;
