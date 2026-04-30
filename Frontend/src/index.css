@@ -5,26 +5,45 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  /* Premium Neutral & Background Colors */
+  --background: 0 0% 99.5%;
+  --foreground: 215 10.3% 23.1%;
+  
+  /* Card & Container Colors */
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 215 10.3% 23.1%;
+  
+  /* Popover Colors */
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96%;
-  --accent-foreground: 222.2 47.4% 11.2%;
+  --popover-foreground: 215 10.3% 23.1%;
+  
+  /* Primary Brand Color - Sophisticated Blue */
+  --primary: 215 100% 47%;
+  --primary-foreground: 0 0% 100%;
+  
+  /* Secondary - Slate Accent */
+  --secondary: 215 13% 34%;
+  --secondary-foreground: 0 0% 100%;
+  
+  /* Muted - Subtle Gray */
+  --muted: 214 14.4% 88.6%;
+  --muted-foreground: 215 12.8% 52.4%;
+  
+  /* Accent - Refined Teal */
+  --accent: 174 100% 45%;
+  --accent-foreground: 0 0% 100%;
+  
+  /* Destructive - Warning Red */
   --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
-  --radius: 0.5rem;
+  --destructive-foreground: 0 0% 100%;
+  
+  /* Border & Input - Premium subtle */
+  --border: 214.3 31.8% 94.1%;
+  --input: 214.3 31.8% 96.5%;
+  --ring: 215 100% 47%;
+  
+  /* Border Radius - Elegant rounded */
+  --radius: 0.75rem;
 }
 
 .dark {
@@ -98,15 +117,47 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
 }
 
+@layer utilities {
+  .glass {
+    @apply bg-white/40 backdrop-blur-xl border border-white/20;
+  }
+  
+  .glass-dark {
+    @apply bg-slate-900/40 backdrop-blur-xl border border-slate-700/30;
+  }
+  
+  .premium-shadow {
+    @apply shadow-xl shadow-black/5;
+  }
+  
+  .premium-shadow-lg {
+    @apply shadow-2xl shadow-black/8;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+  
+  .smooth-transition {
+    @apply transition-all duration-300 ease-out;
+  }
+}
+
+/* Premium Scrollbar Styling */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -114,18 +165,23 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
+  background: #d1d5db;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background-color: #9ca3af;
+  background-clip: padding-box;
 }
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #4b5563;
+  background-clip: padding-box;
 }
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #6b7280;
+  background-clip: padding-box;
 }

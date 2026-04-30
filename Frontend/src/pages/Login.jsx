@@ -40,72 +40,75 @@ export default function Login() {
   };
 
   return (
-    <div className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
-        <div className="absolute inset-0">
+    <div className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0 bg-gradient-to-br from-white to-slate-100">
+      <div className="relative hidden h-full flex-col bg-gradient-to-br from-primary via-blue-600 to-primary/80 p-10 text-white dark:border-r lg:flex">
+        <div className="absolute inset-0 opacity-20">
           <img 
             src="https://images.unsplash.com/photo-1586528116311-ad8dd3c83114?w=1920&h=1080&fit=crop&crop=entropy&auto=format" 
             alt="Warehouse inventory management" 
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-blue-600/80" />
         </div>
-        <div className="relative z-20 flex items-center text-lg font-medium">
-          <PackageSearch className="mr-2 h-6 w-6" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/95 via-blue-600/90 to-primary/85" />
+        <div className="relative z-20 flex items-center text-lg font-bold">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 mr-3 backdrop-blur-sm">
+            <PackageSearch className="h-6 w-6" />
+          </div>
           CoreInventory
         </div>
         <div className="relative z-20 mt-auto">
-          <blockquote className="space-y-2">
-            <p className="text-lg">
-              "Replace manual registers, Excel sheets, and scattered tracking methods with a centralized, real-time app."
+          <blockquote className="space-y-4">
+            <p className="text-xl font-light leading-relaxed">
+              &quot;Replace manual registers, Excel sheets, and scattered tracking methods with a centralized, real-time app.&quot;
             </p>
+            <p className="text-sm text-white/60 font-medium">Enterprise Inventory Management</p>
           </blockquote>
         </div>
       </div>
-      <div className="p-8">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-          <div className="flex flex-col space-y-2 text-center">
-            <div className="mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 p-3">
+      <div className="p-8 flex items-center justify-center">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-8 sm:w-[380px]">
+          <div className="flex flex-col space-y-3 text-center">
+            <div className="mx-auto mb-2 rounded-2xl bg-gradient-to-br from-primary to-accent p-3 shadow-lg shadow-primary/30">
               <PackageSearch className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight">Sign in to your account</h1>
-            <p className="text-sm text-muted-foreground">Enter your email below to log into your account</p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Welcome back</h1>
+            <p className="text-sm text-slate-600 font-medium">Sign in to access your inventory dashboard</p>
           </div>
 
-          <Card className="backdrop-blur-sm bg-white/95 shadow-xl">
-            <CardContent className="pt-6">
+          <Card className="border border-slate-200/40 bg-white shadow-2xl shadow-black/5">
+            <CardContent className="pt-8">
               <form onSubmit={handleSubmit}>
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email Address</Label>
+                <div className="grid gap-5">
+                  <div className="grid gap-3">
+                    <Label htmlFor="email" className="text-slate-700 font-semibold">Email Address</Label>
                     <Input
                       id="email" type="email" placeholder="name@company.com"
                       value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className={errors.email ? 'border-destructive' : ''}
+                      className={`h-11 rounded-lg border-slate-200/60 bg-slate-50/50 focus-visible:ring-primary/50 ${errors.email ? 'border-destructive' : ''}`}
                     />
-                    {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                    {errors.email && <p className="text-sm text-destructive font-medium">{errors.email}</p>}
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
+                  <div className="grid gap-3">
+                    <Label htmlFor="password" className="text-slate-700 font-semibold">Password</Label>
                     <Input
                       id="password" type="password" placeholder="••••••••"
                       value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      className={errors.password ? 'border-destructive' : ''}
+                      className={`h-11 rounded-lg border-slate-200/60 bg-slate-50/50 focus-visible:ring-primary/50 ${errors.password ? 'border-destructive' : ''}`}
                     />
-                    {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+                    {errors.password && <p className="text-sm text-destructive font-medium">{errors.password}</p>}
                   </div>
-                  <Button type="submit" disabled={loading} className="w-full mt-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Sign In
+                  <Button type="submit" disabled={loading} className="w-full mt-4 h-11 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold shadow-lg shadow-primary/30 transition-all duration-300">
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {loading ? 'Signing in...' : 'Sign In'}
                   </Button>
                 </div>
               </form>
             </CardContent>
           </Card>
 
-          <p className="px-8 text-center text-sm text-muted-foreground">
-            Don't have an account? <Link to="/signup" className="underline underline-offset-4 hover:text-primary">Sign up</Link>
-            <br /><br />
-            Forgot your password? <Link to="/forgot-password" className="underline underline-offset-4 hover:text-primary">Reset here</Link>
+          <p className="text-center text-sm text-slate-600">
+            Don't have an account? <Link to="/signup" className="text-primary font-semibold hover:text-primary/80 transition-colors">Sign up</Link>
+            <br />
+            <Link to="/forgot-password" className="text-slate-500 hover:text-primary transition-colors text-xs font-medium">Forgot your password?</Link>
           </p>
         </div>
       </div>
