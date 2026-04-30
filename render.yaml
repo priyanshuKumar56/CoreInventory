@@ -3,8 +3,9 @@ services:
   - type: web
     name: coreinventory-api
     env: node
+    rootDirectory: Backend
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: sh start.sh
     envVars:
       - key: NODE_ENV
         value: production
@@ -26,6 +27,7 @@ services:
   - type: worker
     name: coreinventory-worker
     env: python
+    rootDirectory: PythonWorker
     buildCommand: pip install -r requirements.txt
     startCommand: celery -A worker worker --loglevel=info
     envVars:
