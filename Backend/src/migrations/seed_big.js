@@ -2,7 +2,7 @@ const path = require('path');
 if (require('fs').existsSync(path.join(__dirname, '../../.env'))) {
     require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 }
-const { query, withTransaction } = require('../config/db');
+const { withTransaction } = require('../config/db');
 const logger = require('../utils/logger');
 
 async function seedBigData() {
@@ -27,13 +27,11 @@ async function seedBigData() {
 
     // Generate 500 products
     logger.info('Generating 500 products...');
-    let valString = '';
-    let bulkParams = [];
     
     // We'll insert in batches of 100
     for(let batch=0; batch<5; batch++) {
-      valString = '';
-      bulkParams = [];
+      let valString = '';
+      let bulkParams = [];
       for(let i=0; i<100; i++) {
         const id = batch * 100 + i;
         bulkParams.push(`Bulk Item ${id}`, `BLK${id.toString().padStart(4, '0')}`, catId, 'pcs', 50, 10 + (id%50), 20 + (id%50), `Bulk generated product ${id} for scale testing`, adminId);

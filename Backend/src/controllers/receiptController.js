@@ -1,13 +1,6 @@
 const { query, withTransaction } = require('../config/db');
 
-const buildStatus = (receipt) => {
-  const today = new Date().toISOString().split('T')[0];
-  if (['done', 'cancelled'].includes(receipt.status)) return receipt.status;
-  if (receipt.scheduled_date && receipt.scheduled_date.toISOString?.().split('T')[0] < today) {
-    return 'late';
-  }
-  return receipt.status;
-};
+// Controller logic starts here
 
 // GET /api/receipts
 exports.getReceipts = async (req, res, next) => {

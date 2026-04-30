@@ -1,5 +1,5 @@
 const express = require('express');
-const { body, param, query: qv } = require('express-validator');
+const { body } = require('express-validator');
 const { authenticate, authorize } = require('../middleware/auth');
 const authCtrl = require('../controllers/authController');
 const dashCtrl = require('../controllers/dashboardController');

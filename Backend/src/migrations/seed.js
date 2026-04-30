@@ -3,7 +3,7 @@ const path = require('path');
 if (require('fs').existsSync(path.join(__dirname, '../../.env'))) {
     require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 }
-const { query, withTransaction } = require('../config/db');
+const { withTransaction } = require('../config/db');
 const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger');
 

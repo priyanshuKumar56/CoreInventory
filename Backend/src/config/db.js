@@ -39,7 +39,7 @@ const query = async (text, params) => {
 // Helper: get a client for transactions
 const getClient = async () => {
   const client = await pool.connect();
-  const originalQuery = client.query.bind(client);
+  // const originalQuery = client.query.bind(client);
   const release = client.release.bind(client);
 
   const timeout = setTimeout(() => {

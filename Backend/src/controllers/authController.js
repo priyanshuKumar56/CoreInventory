@@ -1,6 +1,5 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { v4: uuidv4 } = require('uuid');
 const { query, withTransaction } = require('../config/db');
 const { generateOTP, sendOTPEmail } = require('../utils/email');
 const { auditLog } = require('../utils/audit');

@@ -66,7 +66,7 @@ const sendOTPEmail = async (email, otp, purpose = 'password_reset') => {
     logger.info(`OTP email sent to ${email}`);
   } catch (err) {
     logger.error('Failed to send OTP email:', err.message);
-    throw new Error('Failed to send email. Please try again.');
+    throw new Error('Failed to send email. Please try again.', { cause: err });
   }
 };
 

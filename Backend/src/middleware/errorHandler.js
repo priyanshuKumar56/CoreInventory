@@ -1,6 +1,6 @@
 const logger = require('../utils/logger');
 
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => { // eslint-disable-line no-unused-vars
   logger.error('Unhandled error:', {
     message: err.message,
     stack: err.stack,
