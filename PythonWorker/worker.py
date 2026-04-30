@@ -9,7 +9,9 @@ from sklearn.linear_model import LinearRegression
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
-# Database connection params
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Database connection params (Legacy fallback)
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_PORT = os.getenv("DB_PORT", "5432")
 DB_NAME = os.getenv("DB_NAME", "coreinventory")
@@ -19,6 +21,8 @@ DB_PASSWORD = os.getenv("DB_PASSWORD", "password123")
 celery_app = Celery("core_inventory_worker", broker=REDIS_URL, backend=REDIS_URL)
 
 def get_db_connection():
+    if DATABASE_URL:
+        return psycopg2.connect(DATABASE_URL)
     return psycopg2.connect(
         host=DB_HOST,
         port=DB_PORT,
