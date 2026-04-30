@@ -19,7 +19,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        value: https://your-vercel-app-url.vercel.app # TODO: Update with actual frontend URL
+        value: https://core-inventory-psi.vercel.app
 
   # Python Celery Worker
   - type: worker

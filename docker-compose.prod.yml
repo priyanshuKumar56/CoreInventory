@@ -60,7 +60,7 @@ services:
       - DB_HOST=db
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=${JWT_SECRET}
-      - FRONTEND_URL=http://localhost
+      - FRONTEND_URL=https://core-inventory-psi.vercel.app
     depends_on:
       db:
         condition: service_healthy

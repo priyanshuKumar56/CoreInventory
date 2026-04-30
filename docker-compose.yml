@@ -36,7 +36,7 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=password123
       - JWT_SECRET=core_inventory_secret_key_2026
-      - CLIENT_URL=http://localhost:5173
+      - CLIENT_URL=http://localhost:5173,https://core-inventory-psi.vercel.app
       - JWT_EXPIRES_IN=7d
       - JWT_REFRESH_SECRET=core_inventory_refresh_secret_2026
       - JWT_REFRESH_EXPIRES_IN=30d

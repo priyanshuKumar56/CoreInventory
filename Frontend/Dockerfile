@@ -9,7 +9,7 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 # Build-time environment variable
-ARG VITE_API_URL=http://localhost:5000/api
+ARG VITE_API_URL=https://coreinventory-gngv.onrender.com/api
 ENV VITE_API_URL=$VITE_API_URL
 
 RUN npm run build
