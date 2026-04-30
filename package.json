@@ -31,5 +31,16 @@
   "homepage": "https://github.com/priyanshuKumar56/CoreInventory#readme",
   "devDependencies": {
     "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.100.6",
+    "dayjs": "^1.11.20",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.14.0",
+    "react": "^19.2.5",
+    "react-hot-toast": "^2.6.0",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.14.2",
+    "recharts": "^3.8.1"
   }
 }

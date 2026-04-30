@@ -27,17 +27,18 @@ const KPICard = ({ title, icon: Icon, value, colorClass, delay }) => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay }}
+    whileHover={{ y: -4 }}
   >
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow border-muted-foreground/10">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="tracking-tight text-sm font-medium">{title}</CardTitle>
-        <div className={cn("p-2 rounded-lg bg-opacity-10", colorClass.replace('text-', 'bg-'))}>
-          <Icon className={cn("h-4 w-4", colorClass)} />
+    <Card className="overflow-hidden hover:shadow-2xl hover:shadow-black/8 transition-all duration-300 border border-slate-200/40 bg-gradient-to-br from-white to-slate-50/50 group cursor-default">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 pt-6 px-6">
+        <CardTitle className="tracking-tight text-sm font-bold text-slate-700 group-hover:text-primary transition-colors">{title}</CardTitle>
+        <div className={cn("p-2.5 rounded-lg bg-opacity-15 group-hover:scale-110 transition-transform duration-300", colorClass.replace('text-', 'bg-'))}>
+          <Icon className={cn("h-5 w-5", colorClass)} />
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        <p className="text-xs text-muted-foreground mt-1">Live from warehouse</p>
+      <CardContent className="px-6 pb-6">
+        <div className="text-3xl font-bold text-slate-900">{value}</div>
+        <p className="text-xs text-slate-500 mt-2">Live from warehouse</p>
       </CardContent>
     </Card>
   </motion.div>
@@ -78,10 +79,10 @@ export default function Dashboard() {
 
   return (
     <div className="flex-1 space-y-6 pb-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Welcome back, {user?.name?.split(' ')[0]} 👋</h2>
-          <p className="text-muted-foreground mt-1 font-medium italic">Here is what&apos;s happening in your inventory today.</p>
+          <h2 className="text-4xl font-bold tracking-tight text-slate-900">Welcome back, <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{user?.name?.split(' ')[0]}</span> 👋</h2>
+          <p className="text-slate-600 mt-2 font-medium">Here&apos;s what&apos;s happening in your inventory today.</p>
         </div>
         <div className="flex items-center gap-2">
             <Button size="sm" variant="outline" onClick={() => navigate('/moves')}><TrendingUp className="mr-2 h-4 w-4" /> Move Ledger</Button>
@@ -102,10 +103,10 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-7 lg:grid-cols-7">
-        <Card className="col-span-4 transition-all border-muted-foreground/10">
-          <CardHeader>
-            <CardTitle>Movement Velocity</CardTitle>
-            <CardDescription>Daily inflow and outflow of stock items across all warehouses.</CardDescription>
+        <Card className="col-span-4 transition-all border border-slate-200/40 bg-gradient-to-br from-white to-slate-50/50 shadow-lg shadow-black/5">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-slate-900">Movement Velocity</CardTitle>
+            <CardDescription className="text-slate-600">Daily inflow and outflow of stock items across all warehouses.</CardDescription>
           </CardHeader>
           <CardContent className="pl-2 h-[300px]">
             <ResponsiveContainer width="100%" height="100%" minHeight={300}>
@@ -135,52 +136,58 @@ export default function Dashboard() {
         </Card>
 
         <div className="col-span-3 space-y-4">
-             <Card className="transition-all hover:bg-muted/50 cursor-pointer border-l-4 border-l-blue-500" onClick={() => navigate('/receipts')}>
-                <CardHeader className="py-3 items-center flex-row justify-between space-y-0">
-                    <CardTitle className="text-sm font-bold">Incoming Traffic</CardTitle>
-                    <FileText className="w-4 h-4 text-blue-500" />
+             <Card className="transition-all hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 duration-300 cursor-pointer border border-blue-200/40 bg-gradient-to-br from-white to-blue-50/30" onClick={() => navigate('/receipts')}>
+                <CardHeader className="py-4 items-center flex-row justify-between space-y-0">
+                    <CardTitle className="text-sm font-bold text-slate-900">Incoming Traffic</CardTitle>
+                    <div className="p-2 bg-blue-100/80 rounded-lg">
+                      <FileText className="w-5 h-5 text-blue-600" />
+                    </div>
                 </CardHeader>
                 <CardContent className="pb-4">
                     <div className="flex justify-between items-center">
                         <div className="space-y-1">
-                            <div className="text-2xl font-bold">{receipts?.pending || 0}</div>
-                            <div className="text-xs text-muted-foreground">Unreceived Shipments</div>
+                            <div className="text-2xl font-bold text-slate-900">{receipts?.pending || 0}</div>
+                            <div className="text-xs text-slate-600 font-medium">Unreceived Shipments</div>
                         </div>
                         <div className="text-right">
-                           <Badge variant="outline" className="text-red-500 bg-red-50 border-red-200">{receipts?.late || 0} Critical</Badge>
+                           <Badge className="text-red-600 bg-red-100/80 border-red-300">{receipts?.late || 0} Critical</Badge>
                         </div>
                     </div>
                 </CardContent>
              </Card>
 
-             <Card className="transition-all hover:bg-muted/50 cursor-pointer border-l-4 border-l-purple-500" onClick={() => navigate('/deliveries')}>
-                <CardHeader className="py-3 items-center flex-row justify-between space-y-0">
-                    <CardTitle className="text-sm font-bold">Outgoing Logistics</CardTitle>
-                    <Truck className="w-4 h-4 text-purple-500" />
+             <Card className="transition-all hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1 duration-300 cursor-pointer border border-purple-200/40 bg-gradient-to-br from-white to-purple-50/30" onClick={() => navigate('/deliveries')}>
+                <CardHeader className="py-4 items-center flex-row justify-between space-y-0">
+                    <CardTitle className="text-sm font-bold text-slate-900">Outgoing Logistics</CardTitle>
+                    <div className="p-2 bg-purple-100/80 rounded-lg">
+                      <Truck className="w-5 h-5 text-purple-600" />
+                    </div>
                 </CardHeader>
                 <CardContent className="pb-4">
                     <div className="flex justify-between items-center">
                         <div className="space-y-1">
-                            <div className="text-2xl font-bold">{deliveries?.pending || 0}</div>
-                            <div className="text-xs text-muted-foreground">Orders to Pick & Ship</div>
+                            <div className="text-2xl font-bold text-slate-900">{deliveries?.pending || 0}</div>
+                            <div className="text-xs text-slate-600 font-medium">Orders to Pick & Ship</div>
                         </div>
                         <div className="text-right">
-                           <Badge variant="outline" className="text-amber-600 bg-amber-50 border-amber-200">{deliveries?.ready || 0} Ready</Badge>
+                           <Badge className="text-amber-700 bg-amber-100/80 border-amber-300">{deliveries?.ready || 0} Ready</Badge>
                         </div>
                     </div>
                 </CardContent>
              </Card>
 
-             <Card className="transition-all hover:bg-muted/50 cursor-pointer border-l-4 border-l-emerald-500" onClick={() => navigate('/transfers')}>
-                <CardHeader className="py-3 items-center flex-row justify-between space-y-0">
-                    <CardTitle className="text-sm font-bold">Relocation Status</CardTitle>
-                    <ArrowLeftRight className="w-4 h-4 text-emerald-500" />
+             <Card className="transition-all hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1 duration-300 cursor-pointer border border-emerald-200/40 bg-gradient-to-br from-white to-emerald-50/30" onClick={() => navigate('/transfers')}>
+                <CardHeader className="py-4 items-center flex-row justify-between space-y-0">
+                    <CardTitle className="text-sm font-bold text-slate-900">Relocation Status</CardTitle>
+                    <div className="p-2 bg-emerald-100/80 rounded-lg">
+                      <ArrowLeftRight className="w-5 h-5 text-emerald-600" />
+                    </div>
                 </CardHeader>
                 <CardContent className="pb-4">
                     <div className="flex justify-between items-center">
                         <div className="space-y-1">
-                            <div className="text-2xl font-bold">{transfers?.pending || 0}</div>
-                            <div className="text-xs text-muted-foreground">Internal Moves in Progress</div>
+                            <div className="text-2xl font-bold text-slate-900">{transfers?.pending || 0}</div>
+                            <div className="text-xs text-slate-600 font-medium">Internal Moves in Progress</div>
                         </div>
                     </div>
                 </CardContent>
@@ -188,52 +195,52 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="border border-slate-200/40 bg-gradient-to-br from-white to-slate-50/50 shadow-lg shadow-black/5">
+        <CardHeader className="flex flex-row items-center justify-between pb-4">
           <div>
-            <CardTitle>Global Activity Log</CardTitle>
-            <CardDescription>Real-time audit stream of all inventory actions across the enterprise.</CardDescription>
+            <CardTitle className="text-slate-900">Global Activity Log</CardTitle>
+            <CardDescription className="text-slate-600">Real-time audit stream of all inventory actions across the enterprise.</CardDescription>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/moves')}>View Ledger</Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/moves')} className="text-primary hover:text-primary hover:bg-primary/10">View Ledger</Button>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Type</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead className="text-right">Delta</TableHead>
-                <TableHead>From/To</TableHead>
-                <TableHead>Ref</TableHead>
-                <TableHead className="text-right">Time</TableHead>
+              <TableRow className="border-slate-200/40 hover:bg-transparent">
+                <TableHead className="text-slate-700 font-bold">Type</TableHead>
+                <TableHead className="text-slate-700 font-bold">Product</TableHead>
+                <TableHead className="text-right text-slate-700 font-bold">Delta</TableHead>
+                <TableHead className="text-slate-700 font-bold">From/To</TableHead>
+                <TableHead className="text-slate-700 font-bold">Ref</TableHead>
+                <TableHead className="text-right text-slate-700 font-bold">Time</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {recentMoves?.length ? recentMoves.map((m) => (
-                <TableRow key={m.id} className="group hover:bg-muted/30">
+                <TableRow key={m.id} className="group hover:bg-slate-100/40 border-slate-200/40 transition-colors duration-200">
                   <TableCell>
                     <div className={cn(
-                        "w-2 h-2 rounded-full",
+                        "w-2.5 h-2.5 rounded-full shadow-md",
                         m.move_type === 'receipt' ? "bg-green-500" :
                         m.move_type === 'delivery' ? "bg-red-500" : "bg-blue-500"
                     )} />
                   </TableCell>
                   <TableCell>
-                    <div className="font-semibold text-sm">{m.product_name}</div>
-                    <div className="text-xs text-muted-foreground font-mono">{m.sku}</div>
+                    <div className="font-semibold text-sm text-slate-900 group-hover:text-primary transition-colors">{m.product_name}</div>
+                    <div className="text-xs text-slate-500 font-mono">{m.sku}</div>
                   </TableCell>
                   <TableCell className={cn(
-                      "text-right font-mono font-bold",
+                      "text-right font-mono font-bold text-base",
                       m.move_type === 'receipt' ? "text-green-600" : "text-red-600"
                   )}>
                     {m.move_type === 'receipt' ? '+' : '-'}{m.quantity}
                   </TableCell>
-                  <TableCell className="text-xs">
-                    {m.from_location ? <span className="text-muted-foreground">{m.from_location} → </span> : null}
-                    <span className="font-medium">{m.to_location || m.from_location}</span>
+                  <TableCell className="text-xs text-slate-600">
+                    {m.from_location ? <span className="text-slate-500">{m.from_location} → </span> : null}
+                    <span className="font-medium text-slate-900">{m.to_location || m.from_location}</span>
                   </TableCell>
-                  <TableCell className="font-mono text-[10px] opacity-70">{m.reference}</TableCell>
-                  <TableCell className="text-right text-[11px] text-muted-foreground whitespace-nowrap">{dayjs(m.created_at).fromNow()}</TableCell>
+                  <TableCell className="font-mono text-[10px] text-slate-500">{m.reference}</TableCell>
+                  <TableCell className="text-right text-[11px] text-slate-500 whitespace-nowrap">{dayjs(m.created_at).fromNow()}</TableCell>
                 </TableRow>
               )) : (
                 <TableRow><TableCell colSpan={6} className="h-24 text-center">No activity found</TableCell></TableRow>
