@@ -8,6 +8,7 @@
     "dev": "nodemon src/server.js",
     "migrate": "node src/migrations/run.js",
     "seed": "node src/migrations/seed.js",
+    "seed:big": "node src/migrations/seed_big.js",
     "lint": "eslint src/",
     "test": "jest"
   },

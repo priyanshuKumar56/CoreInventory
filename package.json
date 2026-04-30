@@ -13,7 +13,8 @@
     "docker:dev": "docker-compose up --build",
     "docker:prod": "docker-compose -f docker-compose.prod.yml up --build -d",
     "docker:stop": "docker-compose down",
-    "verify:full": "node verify-setup.js",
+    "setup": "npm run install:all && npm run migrate --prefix Backend",
+    "seed:big": "npm run seed:big --prefix Backend",
     "clean": "rimraf Frontend/dist Backend/logs"
   },
   "repository": {
