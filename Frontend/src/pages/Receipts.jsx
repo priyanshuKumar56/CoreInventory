@@ -73,7 +73,7 @@ export default function Receipts() {
               <TableRow key={r.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/receipts/${r.id}`)}>
                 <TableCell className="font-mono font-medium">{r.reference}</TableCell>
                 <TableCell>{r.contact_name || <span className="text-muted-foreground italic">No contact</span>}</TableCell>
-                <TableCell>{r.warehouse_name} / {r.location_name}</TableCell>
+                <TableCell>{r.warehouse_name} / {r.destination_name}</TableCell>
                 <TableCell>{r.scheduled_date ? dayjs(r.scheduled_date).format('MMM D, YYYY') : '—'}</TableCell>
                 <TableCell>
                   <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase ${statusColors[r.status] || 'bg-muted text-muted-foreground'}`}>{r.status}</span>

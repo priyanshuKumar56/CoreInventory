@@ -111,6 +111,7 @@ router.post('/transfers/:id/action', authenticate, (req, res, next) => {
 
 // ── ADJUSTMENTS ───────────────────────────────────────────────────
 router.get('/adjustments', authenticate, invCtrl.getAdjustments);
+router.get('/adjustments/:id', authenticate, invCtrl.getAdjustmentById);
 router.post('/adjustments', authenticate, invCtrl.createAdjustment);
 router.post('/adjustments/:id/validate', authenticate, authorize('admin', 'manager'), invCtrl.validateAdjustment);
 
@@ -120,6 +121,8 @@ router.get('/moves', authenticate, invCtrl.getMoveHistory);
 
 // ── PRODUCTS ──────────────────────────────────────────────────────
 router.get('/products', authenticate, invCtrl.getProducts);
+router.post('/products/export', authenticate, invCtrl.exportInventory);
+router.post('/products/predict-restock', authenticate, invCtrl.predictRestock);
 router.get('/products/:id', authenticate, invCtrl.getProductById);
 router.post('/products', authenticate, authorize('admin', 'manager'), validate([
   body('name').trim().notEmpty(),

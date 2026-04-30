@@ -150,15 +150,15 @@ export default function DeliveryDetail() {
             </div>
             <div className="grid grid-cols-3 gap-2 border-b pb-2">
               <span className="text-muted-foreground font-medium text-sm col-span-1">Source Location</span>
-              <span className="col-span-2">{delivery.location_name}</span>
+              <span className="col-span-2">{delivery.source_name}</span>
             </div>
             <div className="grid grid-cols-3 gap-2 pb-2">
               <span className="text-muted-foreground font-medium text-sm col-span-1">Responsible</span>
               <span className="col-span-2 flex items-center gap-2">
                 <div className="h-6 w-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">
-                  {delivery.user_name?.[0]?.toUpperCase()}
+                  {delivery.responsible_name?.[0]?.toUpperCase() || '?'}
                 </div>
-                {delivery.user_name}
+                {delivery.responsible_name || 'Unassigned'}
               </span>
             </div>
           </CardContent>
@@ -226,7 +226,7 @@ export default function DeliveryDetail() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {delivery.items?.map((item, i) => (
+                {delivery.items?.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium text-xs">{item.product_name}</TableCell>
                     <TableCell className="text-center font-mono text-xs">{item.quantity}</TableCell>

@@ -321,6 +321,23 @@ CREATE TABLE IF NOT EXISTS reorder_rules (
 );
 
 -- ============================================================
+-- AUDIT LOGS (Immutable — tracks every critical action)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id       UUID REFERENCES users(id),
+  user_email    VARCHAR(150),
+  action        VARCHAR(50) NOT NULL,    -- e.g. 'product.create', 'receipt.validate', 'user.login'
+  entity_type   VARCHAR(50),             -- e.g. 'product', 'receipt', 'transfer'
+  entity_id     UUID,
+  old_values    JSONB,
+  new_values    JSONB,
+  ip_address    VARCHAR(45),
+  user_agent    TEXT,
+  created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================
 -- INDEXES
 -- ============================================================
 CREATE INDEX IF NOT EXISTS idx_stock_product ON stock(product_id);
@@ -333,6 +350,9 @@ CREATE INDEX IF NOT EXISTS idx_deliveries_status ON deliveries(status);
 CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
 CREATE INDEX IF NOT EXISTS idx_otp_email ON otp_tokens(email, purpose);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at DESC);
 
 -- ============================================================
 -- TRIGGERS: updated_at auto-update

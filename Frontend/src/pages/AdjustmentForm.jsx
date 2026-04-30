@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adjustmentsAPI, warehousesAPI, productsAPI, stockAPI } from '@/services/api';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Loader2, Plus, Trash2, Search } from 'lucide-react';
+import { ArrowLeft, Loader2, Plus, Trash2, Search, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,7 +36,7 @@ export default function AdjustmentForm() {
 
   const mutation = useMutation({
     mutationFn: (data) => adjustmentsAPI.create(data),
-    onSuccess: (res) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['adjustments'] });
       qc.invalidateQueries({ queryKey: ['stock'] });
       toast.success('Inventory adjustment recorded and validated successfully');

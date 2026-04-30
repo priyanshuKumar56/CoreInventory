@@ -79,7 +79,7 @@ export default function Deliveries() {
               <TableRow key={d.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/deliveries/${d.id}`)}>
                 <TableCell className="font-mono font-medium">{d.reference}</TableCell>
                 <TableCell>{d.contact_name || <span className="text-muted-foreground italic">No contact</span>}</TableCell>
-                <TableCell>{d.warehouse_name} / {d.location_name}</TableCell>
+                <TableCell>{d.warehouse_name} / {d.source_name}</TableCell>
                 <TableCell>{d.scheduled_date ? dayjs(d.scheduled_date).format('MMM D, YYYY') : '—'}</TableCell>
                 <TableCell>
                   <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase ${statusColors[d.status] || 'bg-muted text-muted-foreground'}`}>{d.status}</span>

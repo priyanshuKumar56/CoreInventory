@@ -17,6 +17,7 @@ import TransferDetail from '@/pages/TransferDetail';
 import TransferForm from '@/pages/TransferForm';
 import Adjustments from '@/pages/Adjustments';
 import AdjustmentForm from '@/pages/AdjustmentForm';
+import AdjustmentDetail from '@/pages/AdjustmentDetail';
 import Products from '@/pages/Products';
 import ProductDetail from '@/pages/ProductDetail';
 import ProductForm from '@/pages/ProductForm';
@@ -65,6 +66,7 @@ function App() {
 
         <Route path="adjustments" element={<Adjustments />} />
         <Route path="adjustments/new" element={<AdjustmentForm />} />
+        <Route path="adjustments/:id" element={<AdjustmentDetail />} />
 
         <Route path="products" element={<Products />} />
         <Route path="products/new" element={<ProductForm />} />

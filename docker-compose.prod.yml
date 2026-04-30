@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  # Entry point for the entire application
+  gateway:
+    image: nginx:stable-alpine
+    container_name: core_inventory_gateway
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./Infrastructure/Gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - core_inventory_prod
+
+  db:
+    image: postgres:14-alpine
+    container_name: core_inventory_db_prod
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-coreinventory}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password123}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-coreinventory}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - core_inventory_prod
+
+  redis:
+    image: redis:7-alpine
+    container_name: core_inventory_redis_prod
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks:
+      - core_inventory_prod
+
+  backend:
+    build: 
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: core_inventory_api_prod
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - FRONTEND_URL=http://localhost
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    networks:
+      - core_inventory_prod
+
+  python_worker:
+    build:
+      context: ./PythonWorker
+    container_name: core_inventory_worker_prod
+    restart: always
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DB_HOST=db
+    depends_on:
+      - db
+      - redis
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    networks:
+      - core_inventory_prod
+
+  frontend:
+    build:
+      context: ./Frontend
+      args:
+        - VITE_API_URL=/api
+    container_name: core_inventory_ui_prod
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks:
+      - core_inventory_prod
+
+volumes:
+  postgres_prod_data:
+
+networks:
+  core_inventory_prod:
+    driver: bridge

@@ -2,6 +2,7 @@
 // TRANSFERS CONTROLLER
 // ============================================================
 const { query, withTransaction } = require('../config/db');
+const { auditLog } = require('../utils/audit');
 
 exports.getTransfers = async (req, res, next) => {
   try {
@@ -142,6 +143,33 @@ exports.getAdjustments = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+exports.getAdjustmentById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const aRes = await query(`
+      SELECT a.*,
+        w.name AS warehouse_name, l.name AS location_name, u.name AS responsible_name
+      FROM adjustments a
+      LEFT JOIN warehouses w ON w.id = a.warehouse_id
+      LEFT JOIN locations l ON l.id = a.location_id
+      LEFT JOIN users u ON u.id = a.responsible_id
+      WHERE a.id = $1
+    `, [id]);
+    if (!aRes.rows.length) return res.status(404).json({ success: false, message: 'Adjustment not found' });
+
+    const itemsRes = await query(`
+      SELECT ai.*, p.name AS product_name, p.sku, p.unit_of_measure,
+             l.name as location_name
+      FROM adjustment_items ai 
+      JOIN products p ON p.id = ai.product_id
+      LEFT JOIN locations l ON l.id = ai.location_id
+      WHERE ai.adjustment_id = $1
+    `, [id]);
+
+    res.json({ success: true, data: { ...aRes.rows[0], items: itemsRes.rows } });
+  } catch (err) { next(err); }
+};
+
 exports.createAdjustment = async (req, res, next) => {
   try {
     const { warehouse_id, location_id, reason, items = [] } = req.body;
@@ -204,38 +232,89 @@ exports.validateAdjustment = async (req, res, next) => {
 // ============================================================
 exports.getStockOverview = async (req, res, next) => {
   try {
-    const { warehouse_id, search, low_stock } = req.query;
+    const { warehouse_id, search, low_stock, page = 1, limit = 50 } = req.query;
     let where = 'WHERE p.is_active = true';
     const params = [];
     let idx = 1;
     if (search) { where += ` AND (p.name ILIKE $${idx} OR p.sku ILIKE $${idx})`; params.push(`%${search}%`); idx++; }
+    if (warehouse_id) { where += ` AND w.id = $${idx++}`; params.push(warehouse_id); }
 
-    const result = await query(`
-      SELECT
-        p.id, p.name, p.sku, p.unit_of_measure, p.reorder_point, p.cost_price, p.sale_price,
-        pc.name AS category_name,
-        COALESCE(SUM(s.quantity), 0) AS total_quantity,
-        json_agg(json_build_object(
-          'location_id', l.id,
-          'location_name', l.name,
-          'location_code', l.code,
-          'warehouse_id', w.id,
-          'warehouse_name', w.name,
-          'warehouse_code', w.code,
-          'quantity', COALESCE(s.quantity, 0)
-        ) ORDER BY w.name, l.name) FILTER (WHERE l.id IS NOT NULL) AS locations
-      FROM products p
-      LEFT JOIN product_categories pc ON pc.id = p.category_id
-      LEFT JOIN stock s ON s.product_id = p.id
-      LEFT JOIN locations l ON l.id = s.location_id
-      LEFT JOIN warehouses w ON w.id = l.warehouse_id
-      ${where}
-      GROUP BY p.id, p.name, p.sku, p.unit_of_measure, p.reorder_point, p.cost_price, p.sale_price, pc.name
-      ${low_stock === 'true' ? 'HAVING COALESCE(SUM(s.quantity),0) <= p.reorder_point' : ''}
-      ORDER BY p.name
-    `, params);
+    const having = low_stock === 'true' ? 'HAVING COALESCE(SUM(s.quantity),0) <= p.reorder_point' : '';
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const countParams = [...params];
 
-    res.json({ success: true, data: result.rows });
+    params.push(parseInt(limit), offset);
+
+    const [result, countRes] = await Promise.all([
+      query(`
+        SELECT
+          p.id, p.name, p.sku, p.unit_of_measure, p.reorder_point, p.cost_price, p.sale_price,
+          pc.name AS category_name,
+          COALESCE(SUM(s.quantity), 0) AS total_quantity,
+          json_agg(json_build_object(
+            'location_id', l.id,
+            'location_name', l.name,
+            'location_code', l.code,
+            'warehouse_id', w.id,
+            'warehouse_name', w.name,
+            'warehouse_code', w.code,
+            'quantity', COALESCE(s.quantity, 0)
+          ) ORDER BY w.name, l.name) FILTER (WHERE l.id IS NOT NULL) AS locations
+        FROM products p
+        LEFT JOIN product_categories pc ON pc.id = p.category_id
+        LEFT JOIN stock s ON s.product_id = p.id
+        LEFT JOIN locations l ON l.id = s.location_id
+        LEFT JOIN warehouses w ON w.id = l.warehouse_id
+        ${where}
+        GROUP BY p.id, p.name, p.sku, p.unit_of_measure, p.reorder_point, p.cost_price, p.sale_price, pc.name
+        ${having}
+        ORDER BY p.name
+        LIMIT $${idx++} OFFSET $${idx++}
+      `, params),
+
+      query(`
+        SELECT COUNT(*) FROM (
+          SELECT p.id
+          FROM products p
+          LEFT JOIN stock s ON s.product_id = p.id
+          LEFT JOIN locations l ON l.id = s.location_id
+          LEFT JOIN warehouses w ON w.id = l.warehouse_id
+          ${where}
+          GROUP BY p.id, p.reorder_point
+          ${having}
+        ) sub
+      `, countParams),
+    ]);
+
+    const total = parseInt(countRes.rows[0].count);
+    res.json({
+      success: true,
+      data: result.rows,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(total / parseInt(limit)),
+      },
+    });
+  } catch (err) { next(err); }
+};
+
+exports.exportInventory = async (req, res, next) => {
+  try {
+    const celery = require('../utils/celery');
+    const task = celery.createTask('worker.generate_inventory_export');
+    const result = task.applyAsync([req.user.id, 'csv']);
+    res.json({ success: true, message: 'Export task queued successfully', job_id: result.taskId });
+  } catch (err) { next(err); }
+};
+
+exports.predictRestock = async (req, res, next) => {
+  try {
+    const celery = require('../utils/celery');
+    const task = celery.createTask('worker.predict_restock_levels');
+    const result = task.applyAsync([]);
+    res.json({ success: true, message: 'AI Restock Prediction queued', job_id: result.taskId });
   } catch (err) { next(err); }
 };
 
@@ -338,6 +417,7 @@ exports.createProduct = async (req, res, next) => {
       INSERT INTO products (name, sku, description, category_id, unit_of_measure, reorder_point, initial_stock, cost_price, sale_price, barcode, type, created_by)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *
     `, [name, sku, description, category_id, unit_of_measure || 'pcs', reorder_point || 0, initial_stock || 0, cost_price || 0, sale_price || 0, barcode, type || 'storable', req.user.id]);
+    await auditLog(req, 'product.create', 'product', result.rows[0].id, null, result.rows[0]);
     res.status(201).json({ success: true, data: result.rows[0] });
   } catch (err) { next(err); }
 };
@@ -356,6 +436,7 @@ exports.updateProduct = async (req, res, next) => {
       WHERE id = $11 RETURNING *
     `, [name, description, category_id, unit_of_measure, reorder_point, cost_price, sale_price, barcode, type, is_active, id]);
     if (!result.rows.length) return res.status(404).json({ success: false, message: 'Product not found' });
+    await auditLog(req, 'product.update', 'product', id, null, req.body);
     res.json({ success: true, data: result.rows[0] });
   } catch (err) { next(err); }
 };

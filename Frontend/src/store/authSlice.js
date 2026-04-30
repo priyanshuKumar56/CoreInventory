@@ -11,7 +11,6 @@ export const verifySession = createAsyncThunk('auth/verify', async (_, { rejectW
     return data.data;
   } catch (err) {
     localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     return rejectWithValue(err.response?.data?.message || 'Session expired');
   }
@@ -20,9 +19,10 @@ export const verifySession = createAsyncThunk('auth/verify', async (_, { rejectW
 export const loginUser = createAsyncThunk('auth/login', async (credentials, { rejectWithValue }) => {
   try {
     const { data } = await authAPI.login(credentials);
-    const { user, accessToken, refreshToken } = data.data;
+    // SECURITY: refreshToken is now in HttpOnly cookie (set by server)
+    // Only accessToken comes in JSON body
+    const { user, accessToken } = data.data;
     localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('user', JSON.stringify(user));
     toast.success(`Welcome back, ${user.name}!`);
     return user;
@@ -34,9 +34,8 @@ export const loginUser = createAsyncThunk('auth/login', async (credentials, { re
 export const signupUser = createAsyncThunk('auth/signup', async (userData, { rejectWithValue }) => {
   try {
     const { data } = await authAPI.signup(userData);
-    const { user, accessToken, refreshToken } = data.data;
+    const { user, accessToken } = data.data;
     localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('user', JSON.stringify(user));
     toast.success('Account created successfully!');
     return user;
@@ -45,11 +44,10 @@ export const signupUser = createAsyncThunk('auth/signup', async (userData, { rej
   }
 });
 
-export const logoutUser = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
-  const refreshToken = localStorage.getItem('refreshToken');
-  try { await authAPI.logout({ refreshToken }); } catch {}
+export const logoutUser = createAsyncThunk('auth/logout', async () => {
+  // SECURITY: Server clears the HttpOnly cookie. We just call the endpoint.
+  try { await authAPI.logout({}); } catch { /* ignore logout error */ }
   localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
   localStorage.removeItem('user');
   toast.success('Logged out');
   return null;

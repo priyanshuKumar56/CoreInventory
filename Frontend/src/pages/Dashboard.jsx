@@ -81,7 +81,7 @@ export default function Dashboard() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Welcome back, {user?.name?.split(' ')[0]} 👋</h2>
-          <p className="text-muted-foreground mt-1 font-medium italic">Here is what's happening in your inventory today.</p>
+          <p className="text-muted-foreground mt-1 font-medium italic">Here is what&apos;s happening in your inventory today.</p>
         </div>
         <div className="flex items-center gap-2">
             <Button size="sm" variant="outline" onClick={() => navigate('/moves')}><TrendingUp className="mr-2 h-4 w-4" /> Move Ledger</Button>

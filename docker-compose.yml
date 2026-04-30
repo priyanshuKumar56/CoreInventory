@@ -40,9 +40,42 @@ services:
       - JWT_EXPIRES_IN=7d
       - JWT_REFRESH_SECRET=core_inventory_refresh_secret_2026
       - JWT_REFRESH_EXPIRES_IN=30d
+      - REDIS_URL=redis://redis:6379
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - core_inventory_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: core_inventory_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - core_inventory_network
+
+  python_worker:
+    build:
+      context: ./PythonWorker
+      dockerfile: Dockerfile
+    container_name: core_inventory_python_worker
+    restart: always
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=coreinventory
+      - DB_USER=postgres
+      - DB_PASSWORD=password123
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - core_inventory_network
 

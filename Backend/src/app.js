@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
+const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const routes = require('./routes');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
@@ -12,8 +13,16 @@ const app = express();
 
 // ── Security ──────────────────────────────────────────────────────
 app.use(helmet());
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173').split(',');
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -35,6 +44,7 @@ const authLimiter = rateLimit({
 // ── Body Parsing ──────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 app.use(compression());
 
 // ── Logging ───────────────────────────────────────────────────────

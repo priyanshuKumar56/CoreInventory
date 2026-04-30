@@ -3,11 +3,12 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const { query, withTransaction } = require('../config/db');
 const { generateOTP, sendOTPEmail } = require('../utils/email');
+const { auditLog } = require('../utils/audit');
 const logger = require('../utils/logger');
 
 const generateTokens = (userId) => {
   const accessToken = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    expiresIn: process.env.JWT_EXPIRES_IN || '1h',
   });
   const refreshToken = jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET, {
     expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
@@ -15,10 +16,20 @@ const generateTokens = (userId) => {
   return { accessToken, refreshToken };
 };
 
+const REFRESH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+  path: '/api/auth',
+  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+};
+
 // POST /api/auth/signup
+// SECURITY: Role is ALWAYS forced to 'staff'. Only admins can promote users via a separate endpoint.
 exports.signup = async (req, res, next) => {
   try {
-    const { name, email, password, role = 'staff' } = req.body;
+    const { name, email, password } = req.body;
+    const role = 'staff'; // Hardcoded — prevents privilege escalation
 
     const exists = await query('SELECT id FROM users WHERE email = $1', [email]);
     if (exists.rows.length) {
@@ -35,7 +46,7 @@ exports.signup = async (req, res, next) => {
     const user = result.rows[0];
     const { accessToken, refreshToken } = generateTokens(user.id);
 
-    // Save refresh token
+    // Save refresh token in DB
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     await query(
       'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)',
@@ -43,10 +54,14 @@ exports.signup = async (req, res, next) => {
     );
 
     logger.info(`New user registered: ${email}`);
+    await auditLog(req, 'user.signup', 'user', user.id, null, { name, email, role });
+
+    // Set refresh token as HttpOnly cookie
+    res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
     res.status(201).json({
       success: true,
       message: 'Account created successfully',
-      data: { user, accessToken, refreshToken },
+      data: { user, accessToken },
     });
   } catch (err) {
     next(err);
@@ -89,11 +104,14 @@ exports.login = async (req, res, next) => {
 
     delete user.password;
     logger.info(`User logged in: ${email}`);
+    await auditLog(req, 'user.login', 'user', user.id, null, { email });
 
+    // Set refresh token as HttpOnly cookie
+    res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
     res.json({
       success: true,
       message: 'Login successful',
-      data: { user, accessToken, refreshToken },
+      data: { user, accessToken },
     });
   } catch (err) {
     next(err);
@@ -101,9 +119,10 @@ exports.login = async (req, res, next) => {
 };
 
 // POST /api/auth/refresh
+// SECURITY: Reads refresh token from HttpOnly cookie, NOT from request body
 exports.refreshToken = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
     if (!refreshToken) {
       return res.status(401).json({ success: false, message: 'Refresh token required' });
     }
@@ -115,7 +134,10 @@ exports.refreshToken = async (req, res, next) => {
     );
 
     if (!stored.rows.length) {
-      return res.status(401).json({ success: false, message: 'Invalid or expired refresh token' });
+      // Token reuse detected — potential theft. Invalidate ALL tokens for this user.
+      await query('DELETE FROM refresh_tokens WHERE user_id = $1', [decoded.id]);
+      res.clearCookie('refreshToken', { path: '/api/auth' });
+      return res.status(401).json({ success: false, message: 'Token reuse detected. All sessions revoked.' });
     }
 
     const userRes = await query(
@@ -135,12 +157,15 @@ exports.refreshToken = async (req, res, next) => {
       [decoded.id, newRefresh, expiresAt]
     );
 
+    // Set new refresh token as HttpOnly cookie
+    res.cookie('refreshToken', newRefresh, REFRESH_COOKIE_OPTIONS);
     res.json({
       success: true,
-      data: { accessToken: newAccess, refreshToken: newRefresh, user: userRes.rows[0] },
+      data: { accessToken: newAccess, user: userRes.rows[0] },
     });
   } catch (err) {
     if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+      res.clearCookie('refreshToken', { path: '/api/auth' });
       return res.status(401).json({ success: false, message: 'Invalid refresh token' });
     }
     next(err);
@@ -235,10 +260,11 @@ exports.resetPassword = async (req, res, next) => {
 // POST /api/auth/logout
 exports.logout = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
     if (refreshToken) {
       await query('DELETE FROM refresh_tokens WHERE token = $1', [refreshToken]);
     }
+    res.clearCookie('refreshToken', { path: '/api/auth' });
     res.json({ success: true, message: 'Logged out successfully' });
   } catch (err) {
     next(err);

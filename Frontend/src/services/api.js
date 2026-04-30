@@ -5,9 +5,10 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const api = axios.create({
   baseURL: API_BASE,
   headers: { 'Content-Type': 'application/json' },
+  withCredentials: true, // SECURITY: Send HttpOnly cookies with every request
 });
 
-// Request interceptor — attach token
+// Request interceptor — attach access token from localStorage
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
@@ -17,7 +18,7 @@ api.interceptors.request.use(
   (err) => Promise.reject(err)
 );
 
-// Response interceptor — auto-refresh
+// Response interceptor — auto-refresh via HttpOnly cookie
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -48,14 +49,12 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) throw new Error('No refresh token');
-
-        const { data } = await axios.post(`${API_BASE}/auth/refresh`, { refreshToken });
-        const { accessToken, refreshToken: newRefresh } = data.data;
+        // SECURITY: Refresh token is sent automatically as HttpOnly cookie
+        // No need to read from localStorage
+        const { data } = await axios.post(`${API_BASE}/auth/refresh`, {}, { withCredentials: true });
+        const { accessToken } = data.data;
 
         localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', newRefresh);
         api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
         processQueue(null, accessToken);
@@ -64,7 +63,6 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
         window.location.href = '/login';
         return Promise.reject(refreshError);
@@ -126,6 +124,7 @@ export const transfersAPI = {
 // ===== ADJUSTMENTS =====
 export const adjustmentsAPI = {
   getAll: () => api.get('/adjustments'),
+  getById: (id) => api.get(`/adjustments/${id}`),
   create: (data) => api.post('/adjustments', data),
   validate: (id) => api.post(`/adjustments/${id}/validate`),
 };
@@ -134,6 +133,7 @@ export const adjustmentsAPI = {
 export const stockAPI = {
   getOverview: (params) => api.get('/stock', { params }),
   getMoves: (params) => api.get('/moves', { params }),
+  predictRestock: () => api.post('/products/predict-restock'),
 };
 
 // ===== PRODUCTS =====
@@ -142,6 +142,7 @@ export const productsAPI = {
   getById: (id) => api.get(`/products/${id}`),
   create: (data) => api.post('/products', data),
   update: (id, data) => api.put(`/products/${id}`, data),
+  exportCSV: () => api.post('/products/export'),
   getCategories: () => api.get('/categories'),
   createCategory: (data) => api.post('/categories', data),
 };

@@ -1,0 +1,34 @@
+{
+  "name": "coreinventory",
+  "version": "1.0.0",
+  "description": "CoreInventory is a high-performance, production-ready **Inventory Management System (IMS)**. Engineered for modern businesses, it provides a centralized platform to manage stock lifecycle—from procurement and internal relocation to fulfillment and auditing.",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "npm install --prefix Backend && npm install --prefix Frontend",
+    "dev": "concurrently \"npm run dev --prefix Backend\" \"npm run dev --prefix Frontend\"",
+    "start": "concurrently \"npm start --prefix Backend\" \"npm run preview --prefix Frontend\"",
+    "build": "npm run build --prefix Frontend",
+    "test": "npm run test --prefix Backend && npm run test --prefix Frontend",
+    "lint": "npm run lint --prefix Backend && npm run lint --prefix Frontend",
+    "docker:dev": "docker-compose up --build",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up --build -d",
+    "docker:stop": "docker-compose down",
+    "verify:full": "node verify-setup.js",
+    "clean": "rimraf Frontend/dist Backend/logs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priyanshuKumar56/CoreInventory.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/priyanshuKumar56/CoreInventory/issues"
+  },
+  "homepage": "https://github.com/priyanshuKumar56/CoreInventory#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
